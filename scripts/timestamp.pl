@@ -29,6 +29,23 @@ sub get_ts($$) {
 	return ($ts, $fn);
 }
 
+foreach my $arg (@ARGV) {
+    if ($arg =~ /^--help/) {
+	print "Find last modified file.\n\n";
+	print "Usage:\n\ttest.pl [-n <target>|-p|-t] [-f] [-x <exclude>] <path>...\n";
+	print "\t<path>\tSearch path.\n";
+	print "\nOptions:\n";
+	print "\t--help\tShow this message.\n";
+	print "\t-n <target>\tReturn success if <target> is the last modified file.\n";
+	print "\t-p\tPrint <path> containing the last modified file.\n";
+	print "\t-t\tPrint timestamp of the last modified file.\n";
+	print "\t-F\tPrint path to the last modified file and its timestamp.\n";
+	print "\t-f\tFollow symlinks.\n";
+	print "\t-x <exclude>\tExclude path from search. May be used multiple times\n";
+	exit 0;
+    }
+}
+
 (@ARGV > 0) or push @ARGV, ".";
 my $ts = 0;
 my $n = ".";
@@ -37,7 +54,7 @@ while (@ARGV > 0) {
 	my $path = shift @ARGV;
 	if ($path =~ /^-x/) {
 		my $str = shift @ARGV;
-		$options{"findopts"} .= " -and -not -path '".$str."'"
+		$options{"findopts"} .= " -and -not -path '".$str."'";
 	} elsif ($path =~ /^-f/) {
 		$options{"findopts"} .= " -follow";
 	} elsif ($path =~ /^-n/) {
