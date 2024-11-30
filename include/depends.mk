@@ -2,18 +2,56 @@
 #
 # Copyright (C) 2007-2020 OpenWrt.org
 
-# define a dependency on a subtree
-# parameters:
-#	1: directories/files
-#	2: directory dependency
-#	3: tempfile for file listings
-#	4: find options
+##@ @file depends.mk Subtree dependency target generation.
 
+##@
+# @brief Excluded globs for file search.
+#
+# Globs are prepended  by `-x` flag. Used in @find_md5 and
+# @find_md5_reproducible functions.
+#
+##
 DEP_FINDPARAMS := -x "*/.svn*" -x ".*" -x "*:*" -x "*\!*" -x "* *" -x "*\\\#*" -x "*/.*_check" -x "*/.*.swp" -x "*/.pkgdir*"
 
+##@
+# @brief Calculate hash of files in folder including modification time.
+#
+# This version uses modification time to calculate hash, thus the hash value is
+# not reproducible. If you need reproducible hash, use @find_md5_reproducible
+# function.
+#
+# @see @find_md5_reproducible
+#
+# @param 1: Directory glob. May resolve to multiple directories.
+# @param 2: Ignored subdir globs, separated by `-x`. Gets added to
+#           @DEP_FINDPARAMS list.
+##
 find_md5=find $(wildcard $(1)) -type f $(patsubst -x,-and -not -path,$(DEP_FINDPARAMS) $(2)) -printf "%p%T@\n" | sort | $(MKHASH) md5
+
+##@
+# @brief Calculate hash of files in folder.
+#
+# This version does not use file modification time to calculate hash, thus
+# the hash value is reproducible.
+#
+# @see @find_md5
+#
+# @param 1: Directory glob. May resolve to multiple directories.
+# @param 2: Ignored subdir globs, separated by `-x`. Gets added to
+#           @DEP_FINDPARAMS list.
+##
 find_md5_reproducible=find $(wildcard $(1)) -type f $(patsubst -x,-and -not -path,$(DEP_FINDPARAMS) $(2)) -print0 | xargs -0 $(MKHASH) md5 | sort | $(MKHASH) md5
 
+##@
+# @brief Define a dependency on a subtree.
+#
+# Check subtree files timestamps and compare with flag $(2)_check file timestamp.
+#
+# @param 1: Directories/files.
+# @param 2: Directory dependency.
+# @param 3: Temporary file for file listings.
+# @param 4: Additional ignored subdir globs. Appended to @DEP_FINDPARAMS list.
+##
 define rdep
   .PRECIOUS: $(2)
   .SILENT: $(2)_check

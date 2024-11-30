@@ -2,9 +2,12 @@
 #
 # Copyright (C) 2006-2020 OpenWrt.org
 
+##@ @file prereq.mk Prerequisite check functions.
+
 ifneq ($(__prereq_inc),1)
 __prereq_inc:=1
 
+##@ @brief Report prereq error message once and clear it.
 prereq:
 	if [ -f $(TMP_DIR)/.prereq-error ]; then \
 		echo; \
@@ -19,8 +22,15 @@ endif
 
 PREREQ_PREV=
 
-# 1: display name
-# 2: error message
+##@
+# @brief Setup prerequisite targets.
+#
+# Internal command, used by @RequireCommand, @RequireHeader, @RequireCHeader
+# and @TestHostCommand, that sets up `prereq` and `check` targets.
+#
+# @param 1: Display name.
+# @param 2: Error message.
+##
 define Require
   export PREREQ_CHECK=1
   ifeq ($$(CHECK_$(1)),)
@@ -48,7 +58,12 @@ define Require
   PREREQ_PREV=$(1)
 endef
 
-
+##@
+# @brief Check command presence.
+#
+# @param 1: Command to test.
+# @param 2: Failure message.
+##
 define RequireCommand
   define Require/$(1)
     command -v $(1)
@@ -57,6 +72,12 @@ define RequireCommand
   $$(eval $$(call Require,$(1),$(2)))
 endef
 
+##@
+# @brief Check file presence.
+#
+# @param 1: File to test.
+# @param 2: Failure message.
+##
 define RequireHeader
   define Require/$(1)
     [ -e "$(1)" ]
@@ -65,10 +86,14 @@ define RequireHeader
   $$(eval $$(call Require,$(1),$(2)))
 endef
 
-# 1: header to test
-# 2: failure message
-# 3: optional compile time test
-# 4: optional link library test (example -lncurses)
+##@
+# @brief Check availability of C header.
+#
+# @param 1: Header to test.
+# @param 2: Failure message.
+# @param 3: Optional compile time test, embedded into C code.
+# @param 4: Optional link library test (example -lncurses).
+##
 define RequireCHeader
   define Require/$(1)
     echo 'int main(int argc, char **argv) { $(3); return 0; }' | gcc -include $(1) -x c -o $(TMP_DIR)/a.out - $(4)
@@ -77,13 +102,24 @@ define RequireCHeader
   $$(eval $$(call Require,$(1),$(2)))
 endef
 
+##@
+# @brief Put shell command in quotes.
+#
+# Put shell command in single quotes `'` and escape them in command string.
+#
+# @param 1: Command.
+##
 define QuoteHostCommand
 '$(subst ','"'"',$(strip $(1)))'
 endef
 
-# 1: display name
-# 2: failure message
-# 3: test
+##@
+# @brief Evaluate shell test expression.
+#
+# @param 1: Display name.
+# @param 2: Failure message.
+# @param 3: Shell test.
+##
 define TestHostCommand
   define Require/$(1)
 	($(3)) >/dev/null 2>/dev/null
@@ -92,9 +128,14 @@ define TestHostCommand
   $$(eval $$(call Require,$(1),$(2)))
 endef
 
-# 1: canonical name
-# 2: failure message
-# 3+: candidates
+##@
+# @brief Select command out of several possibilities.
+#
+# @param 1: Canonical name.
+# @param 2: Failure message.
+# @param 3..12: Candidate testing functions. The successfully evaluated command
+#               will be used.
+##
 define SetupHostCommand
   define Require/$(1)
 	mkdir -p "$(STAGING_DIR_HOST)/bin"; \

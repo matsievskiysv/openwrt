@@ -1,4 +1,8 @@
-# Build commands that can be called from Device/* templates
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright (C) 2006-2020 OpenWrt.org
+
+##@ @file Build commands that can be called from Device/* templates.
 
 IMAGE_KERNEL = $(word 1,$^)
 IMAGE_ROOTFS = $(word 2,$^)

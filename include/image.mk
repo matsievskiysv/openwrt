@@ -2,6 +2,8 @@
 #
 # Copyright (C) 2006-2020 OpenWrt.org
 
+##@ @file image.mk Image build definitions.
+
 override TARGET_BUILD=
 include $(INCLUDE_DIR)/prereq.mk
 include $(INCLUDE_DIR)/kernel.mk
@@ -433,35 +435,43 @@ endef
 ##@
 # @brief Image configuration variables.
 #
+# Requires @IMG_PREFIX variable.
+#
 # @param 1: Device name.
+# @param 2: Device image suffix.
 ##
 define Device/Init
   ##@ Device name.
   DEVICE_NAME := $(1)
   ##@ Commands to build kernel.
-  # Commands with arguments are separated by `|`.
+  # Build commands without `Built/` prefix with arguments, separated by `|`.
   ##
   KERNEL:=
   ##@ Commands to build initramfs.
-  # Commands with arguments are separated by `|`.
+  # Build commands without `Built/` prefix with arguments, separated by `|`.
   ##
   KERNEL_INITRAMFS = $$(KERNEL)
-  ##@ Kernel command line.
+  ##@ Kernel command line arguments.
   CMDLINE:=
 
-  ##@ Images to build.
+  ##@ Image list to build.
   IMAGES :=
-  ##@ Artifacts to build.
+  ##@ Artifact list to build.
   ARTIFACTS :=
   ##@ Device image prefix.
   DEVICE_IMG_PREFIX := $(IMG_PREFIX)-$(1)
-  ##@ Device image name.
+  ##@
+  # @brief Device image name function.
+  #
+  # @param 1: Device first suffix.
+  # @param 2: Device second suffix.
+  ##
   DEVICE_IMG_NAME = $$(DEVICE_IMG_PREFIX)-$$(1)-$$(2)
   ##@ Factory image name.
   FACTORY_IMG_NAME :=
-  ##@ Maximum image size. Optional.
+  ##@ Maximum image size. May use suffixes k,m,g. Optional.
   IMAGE_SIZE :=
-  ##@ Maximum image size. Optional.
+  ##@ Maximum NAND image size. Optional.
   NAND_SIZE :=
   ##@ Kernel image prefix.
   KERNEL_PREFIX = $$(DEVICE_IMG_PREFIX)

@@ -2,6 +2,8 @@
 #
 # Copyright (C) 2006-2020 OpenWrt.org
 
+##@ @file verbose.mk Message definitions.
+
 ifndef OPENWRT_VERBOSE
   OPENWRT_VERBOSE:=
 endif
@@ -29,6 +31,11 @@ ifeq ($(IS_TTY),1)
   endif
 endif
 
+##@
+# @brief Show error message.
+#
+# @param 1: Message string.
+##
 define ERROR_MESSAGE
   { \
 	printf "$(_R)%s$(_N)\n" "$(1)" >&9 || \
@@ -37,6 +44,11 @@ define ERROR_MESSAGE
 endef
 
 ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
+  ##@
+  # @brief Show message.
+  #
+  # @param 1: Message string.
+  ##
   define MESSAGE
 	{ \
 		printf "$(_Y)%s$(_N)\n" "$(1)" >&8 || \
@@ -66,6 +78,11 @@ ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
   .SILENT: $(MAKECMDGOALS)
 else
   SUBMAKE=$(MAKE) -w
+  ##@
+  # @brief Show message.
+  #
+  # @param 1: Message string.
+  ##
   define MESSAGE
     printf "%s\n" "$(1)"
   endef
