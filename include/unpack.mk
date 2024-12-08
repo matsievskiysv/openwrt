@@ -2,6 +2,8 @@
 #
 # Copyright (C) 2006-2020 OpenWrt.org
 
+##@ @file unpack.mk Configure unpacking commands.
+
 HOST_TAR:=$(TAR)
 TAR_CMD=$(HOST_TAR) -C $(1)/.. $(TAR_OPTIONS)
 UNZIP_CMD=unzip -q -d $(1)/.. $(DL_DIR)/$(PKG_SOURCE)

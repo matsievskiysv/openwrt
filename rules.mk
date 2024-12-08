@@ -65,10 +65,59 @@ define newline
 
 endef
 
+##@
+# @brief Zip lists, using `,` as separator.
+#
+# @param 1: First list.
+# @param 2: Second list.
+##
 __tr_list = $(join $(join $(1),$(foreach char,$(1),$(comma))),$(2))
+##@
+# @brief String replace command beginning.
+#
+# Create the beginning of function, that replaces the list of substrings with
+# the list of replacement substrings.
+#
+# This is the internal function and it is unusable without @__tr_head.
+#
+# @param 1: Original substring list.
+# @param 2: Replacement substring list.
+##
 __tr_head_stripped = $(subst $(space),,$(foreach cv,$(call __tr_list,$(1),$(2)),$$$(paren_left)subst$(cv)$(comma)))
+##@
+# @brief String replace command beginning.
+#
+# Create the beginning of function, that replaces the list of substrings with
+# the list of replacement substrings.
+#
+# This is the internal function, that inserts spaces to the output
+# of @__tr_head_stripped.
+#
+# @param 1: Original substring list.
+# @param 2: Replacement substring list.
+##
 __tr_head = $(subst $(paren_left)subst,$(paren_left)subst$(space),$(__tr_head_stripped))
+##@
+# @brief String replace command end.
+#
+# Create the end of function, that replaces the list of substrings with
+# the list of replacement substrings.
+#
+# This is the internal function, that inserts the right number of brackets for
+# @__tr_head.
+#
+# @param 1: Substring list.
+##
 __tr_tail = $(subst $(space),,$(foreach cv,$(1),$(paren_right)))
+##@
+# @brief Create string replacement function.
+#
+# This function is used to create new string replacement functions via @eval
+# call.
+#
+# @param 1: Original substring list.
+# @param 2: Replacement substring list.
+##
 __tr_template = $(__tr_head)$$(1)$(__tr_tail)
 
 ##@
@@ -82,6 +131,8 @@ $(eval tolower = $(call __tr_template,$(chars_upper),$(chars_lower)))
 
 ##@
 # @brief Abbreviate version. Truncate to 8 characters.
+#
+# @param 1: Input version string.
 ##
 version_abbrev = $(if $(if $(CHECK),,$(DUMP)),$(1),$(shell printf '%.8s' $(1)))
 

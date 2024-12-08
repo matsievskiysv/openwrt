@@ -47,10 +47,20 @@ endif
 
 export GCC_HONOUR_COPTS=s
 
+##@
+# @brief U-Boot default install subcommand.
+#
+# @param 1: Install destination folder.
+##
 define Package/u-boot/install/default
 	$(CP) $(patsubst %,$(PKG_BUILD_DIR)/%,$(UBOOT_IMAGE)) $(1)/
 endef
 
+##@
+# @brief U-Boot default install command.
+#
+# @param 1: Install destination folder.
+##
 Package/u-boot/install = $(Package/u-boot/install/default)
 
 define U-Boot/Init

@@ -3,6 +3,8 @@
 # Copyright (C) 2012-2015 OpenWrt.org
 # Copyright (C) 2016 LEDE Project
 
+##@ @file version.mk Version definitions.
+
 # Substituted by SDK, do not remove
 # REVISION:=x
 # SOURCE_DATE_EPOCH:=x
@@ -20,6 +22,13 @@ PKG_CONFIG_DEPENDS += \
 	CONFIG_VERSION_SUPPORT_URL \
 	CONFIG_VERSION_HWREV \
 
+##@
+# @brief Sanitize string.
+#
+# Substitute ` ` and ` -` with `_`; convert to lowercase;
+#
+# @param 1: String input.
+##
 sanitize = $(call tolower,$(subst _,-,$(subst $(space),-,$(1))))
 
 VERSION_NUMBER:=$(call qstrip,$(CONFIG_VERSION_NUMBER))
@@ -56,10 +65,20 @@ VERSION_PRODUCT:=$(if $(VERSION_PRODUCT),$(VERSION_PRODUCT),Generic)
 VERSION_HWREV:=$(call qstrip,$(CONFIG_VERSION_HWREV))
 VERSION_HWREV:=$(if $(VERSION_HWREV),$(VERSION_HWREV),v0)
 
+##@
+# @brief Get tainted symbol name.
+#
+# @param 1: String input.
+##
 define taint2sym
 $(CONFIG_$(firstword $(subst :, ,$(subst +,,$(subst -,,$(1))))))
 endef
 
+##@
+# @brief Get tainted symbol postfix.
+#
+# @param 1: String input.
+##
 define taint2name
 $(lastword $(subst :, ,$(1)))
 endef
@@ -80,7 +99,11 @@ VERSION_TAINTS := $(strip $(foreach taint,$(VERSION_TAINT_SPECS), \
 
 PKG_CONFIG_DEPENDS += $(foreach taint,$(VERSION_TAINT_SPECS),$(call taint2sym,$(taint)))
 
-# escape commas, backslashes, squotes, and ampersands for sed
+##@
+# @brief Escape commas, backslashes, squotes, and ampersands for sed.
+#
+# @param 1: sed input.
+##
 define sed_escape
 $(subst &,\&,$(subst $(comma),\$(comma),$(subst ','\'',$(subst \,\\,$(1)))))
 endef
