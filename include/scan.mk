@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright (C) 2007-2020 OpenWrt.org
+
+##@ @file scan.mk top level makefile for scanning projects.
+
 include $(TOPDIR)/include/verbose.mk
 include $(TOPDIR)/rules.mk
 TMP_DIR:=$(TOPDIR)/tmp
@@ -14,6 +20,13 @@ OVERRIDELIST:=$(TMP_DIR)/info/.overrides-$(SCAN_TARGET)-$(SCAN_COOKIE)
 export ORIG_PATH:=$(if $(ORIG_PATH),$(ORIG_PATH),$(PATH))
 export PATH:=$(STAGING_DIR_HOST)/bin:$(PATH)
 
+##@
+# @brief Extract feed name from path.
+#
+# Path must start with `feeds/`
+#
+# @param 1: Path to feed
+##
 define feedname
 $(if $(patsubst feeds/%,,$(1)),,$(word 2,$(subst /, ,$(1))))
 endef
@@ -29,15 +42,30 @@ endif
 
 ifeq ($(IS_TTY),1)
   ifneq ($(strip $(NO_COLOR)),1)
+    ##@
+    # @brief Show progress string in color.
+    #
+    # @param 1: String
+    ##
     define progress
 	printf "\033[M\r$(1)" >&2;
     endef
   else
+    ##@
+    # @brief Show progress string w/o color.
+    #
+    # @param 1: String
+    ##
     define progress
 	printf "\r$(1)" >&2;
     endef
   endif
 else
+  ##@
+  # @brief Placeholder function.
+  #
+  # @param 1: String
+  ##
   define progress
 	:;
   endef

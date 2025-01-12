@@ -2,6 +2,14 @@
 #
 # Copyright (C) 2007-2020 OpenWrt.org
 
+##@
+# @file toplevel.mk top level directory targets.
+#
+# This file
+# * builds makefile prerequisites
+# * scans targets and packages dirs and caches target info in tmp
+##
+
 PREP_MK= OPENWRT_BUILD= QUIET=0
 
 export IS_TTY=$(if $(MAKE_TERMOUT),1,0)
@@ -57,6 +65,7 @@ export STAGING_DIR_HOST:=$(if $(STAGING_DIR),$(abspath $(STAGING_DIR)/../host),$
 unexport TAR_OPTIONS
 
 ifeq ($(FORCE),)
+  # skip prerequisites build if @FORCE is set
   .config scripts/config/conf scripts/config/mconf: $(STAGING_DIR_HOST)/.prereq-build
 endif
 
@@ -67,6 +76,9 @@ SUBMAKE:=umask 022; $(SUBMAKE)
 
 ULIMIT_FIX=_limit=`ulimit -n`; [ "$$_limit" = "unlimited" -o "$$_limit" -ge 1024 ] || ulimit -n 1024;
 
+##@
+# @brief Build prerequisites target.
+##
 prepare-mk: $(STAGING_DIR_HOST)/.prereq-build FORCE ;
 
 ifdef SDK
@@ -75,10 +87,21 @@ endif
 
 _ignore = $(foreach p,$(IGNORE_PACKAGES),--ignore $(p))
 
+##@
+# @brief Config invalidation list.
+#
 # Config that will invalidate the .targetinfo as they will affect
 # DEFAULT_PACKAGES.
 # Keep DYNAMIC_DEF_PKG_CONF in sync with target.mk to reflect the same configs
+##
 DYNAMIC_DEF_PKG_CONF := CONFIG_USE_APK CONFIG_SELINUX CONFIG_SMALL_FLASH CONFIG_USE_SECCOMP
+
+##@
+# @brief Invalidate targetinfo when invalidation configurations are found.
+#
+# Check for addition of DYNAMIC_DEF_PKG_CONF configs and if so, invalidate
+# targetinfo.
+##
 check-dynamic-def-pkg: FORCE
 	@+DEF_PKG_CONFS=""; \
 	if [ -f $(TOPDIR)/.config ]; then \
@@ -90,6 +113,12 @@ check-dynamic-def-pkg: FORCE
 	[ "$$DEF_PKG_CONFS" = "$$OLD_DEF_PKG_CONFS" ] || rm -rf tmp/info/.targetinfo*; \
 	mkdir -p tmp && echo "$$DEF_PKG_CONFS" > tmp/.packagedynamicdefault;
 
+##@
+# @brief Invalidate targetinfo when invalidation configurations are found.
+#
+# Check for addition of @DYNAMIC_DEF_PKG_CONF configs and if so, invalidate
+# targetinfo.
+##
 prepare-tmpinfo: check-dynamic-def-pkg FORCE
 	@+$(MAKE) -r -s $(STAGING_DIR_HOST)/.prereq-build $(PREP_MK)
 	mkdir -p tmp/info feeds

@@ -23,6 +23,7 @@ ifeq ($(DUMP),)
 endif
 
 ifneq ($(DEBUG),)
+# debugging messages enabled
 
 ##@
 # @brief Check debug enable conditions.
@@ -75,6 +76,7 @@ $(4)
 endef
 
 else
+# debugging messages disabled
 
 debug:=
 warn:=

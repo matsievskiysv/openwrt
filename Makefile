@@ -2,6 +2,13 @@
 #
 # Copyright (C) 2007 OpenWrt.org
 
+##@
+# @file rules.mk Various helper functions and constant definitions.
+#
+# The first invocation executes include/toplevel.mk execution path. Submake
+# invocations source file repeatedly with different execution path.
+##
+
 TOPDIR:=${CURDIR}
 LC_ALL:=C
 LANG:=C
@@ -12,6 +19,7 @@ empty:=
 space:= $(empty) $(empty)
 $(if $(findstring $(space),$(TOPDIR)),$(error ERROR: The path to the OpenWrt directory must not include any spaces))
 
+# make world target default
 world:
 
 DISTRO_PKG_CONFIG:=$(shell $(TOPDIR)/scripts/command_all.sh pkg-config | grep -e '/usr' -e '/nix/store' -m 1)
@@ -20,6 +28,7 @@ export ORIG_PATH:=$(if $(ORIG_PATH),$(ORIG_PATH),$(PATH))
 export PATH:=$(if $(STAGING_DIR),$(abspath $(STAGING_DIR)/../host/bin),$(TOPDIR)/staging_dir/host/bin):$(PATH)
 
 ifneq ($(OPENWRT_BUILD),1)
+  # toplevel.mk execution path
   _SINGLE=export MAKEFLAGS=$(space);
 
   override OPENWRT_BUILD=1
@@ -32,6 +41,7 @@ ifneq ($(OPENWRT_BUILD),1)
   include $(TOPDIR)/include/depends.mk
   include $(TOPDIR)/include/toplevel.mk
 else
+  # sub-make execution path
   include rules.mk
   include $(INCLUDE_DIR)/depends.mk
   include $(INCLUDE_DIR)/subdir.mk

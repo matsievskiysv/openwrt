@@ -47,8 +47,8 @@ find_md5_reproducible=find $(wildcard $(1)) -type f $(patsubst -x,-and -not -pat
 #
 # Check subtree files timestamps and compare with flag $(2)_check file timestamp.
 #
-# @param 1: Directories/files.
-# @param 2: Directory dependency.
+# @param 1: Dependency directories/files.
+# @param 2: Dependency file.
 # @param 3: Temporary file for file listings.
 # @param 4: Additional ignored subdir globs. Appended to @DEP_FINDPARAMS list.
 ##
@@ -60,6 +60,7 @@ define rdep
   check-depends: $(2)_check
 
 ifneq ($(wildcard $(2)),)
+  # target file already exists
   $(2)_check::
 	$(if $(3), \
 		$(call find_md5,$(1),$(4)) > $(3).1; \
@@ -77,6 +78,7 @@ ifneq ($(wildcard $(2)),)
 	}
 	$(if $(3), mv $(3).1 $(3))
 else
+  # target file not yet exist
   $(2)_check::
 	$(if $(3), rm -f $(3) $(3).1)
 	$(call debug_eval,$(SUBDIR),r,echo "Target $(2) not built")
@@ -85,6 +87,7 @@ endif
 endef
 
 ifeq ($(filter .%,$(MAKECMDGOALS)),$(if $(MAKECMDGOALS),$(MAKECMDGOALS),x))
+  # if make target starts with ".". TODO: find where is needed
   define rdep
     $(2): $(2)_check
   endef

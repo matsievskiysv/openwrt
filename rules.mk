@@ -3,6 +3,8 @@
 # Copyright (C) 2006-2010 OpenWrt.org
 # Copyright (C) 2016 LEDE Project
 
+##@ @file rules.mk Various helper functions and constant definitions.
+
 ifneq ($(__rules_inc),1)
 __rules_inc=1
 
@@ -21,7 +23,7 @@ export TMP_DIR:=$(TOPDIR)/tmp
 export TMPDIR:=$(TMP_DIR)
 
 ##@
-# @brief Strip quotes `"` and pounds `#` from string.
+# @brief Strip quotes `"` from string.
 #
 # @param 1: String.
 ##

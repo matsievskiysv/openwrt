@@ -3,6 +3,8 @@
 # Copyright (C) 2007-2008 OpenWrt.org
 # Copyright (C) 2016 LEDE Project
 
+##@ @file target.mk Kernel compilation definitions.
+
 ifneq ($(__target_inc),1)
 __target_inc=1
 

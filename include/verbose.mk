@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2006-2020 OpenWrt.org
 
-##@ @file verbose.mk Message definitions.
+##@ @file verbose.mk Submake and message definitions.
 
 ifndef OPENWRT_VERBOSE
   OPENWRT_VERBOSE:=
@@ -33,6 +33,8 @@ endif
 
 ##@
 # @brief Show error message.
+# Caller may use file descriptor 9 to redirect message elsewhere.
+# @see SUBMAKE() silent version, first invocation
 #
 # @param 1: Message string.
 ##
@@ -44,8 +46,12 @@ define ERROR_MESSAGE
 endef
 
 ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
+  # silent versions
+
   ##@
   # @brief Show message.
+  # Caller may use file descriptor 9 to redirect message elsewhere.
+  # @see SUBMAKE() silent version, first invocation
   #
   # @param 1: Message string.
   ##
@@ -70,6 +76,8 @@ ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
     endif
     SUBMAKE=$(MAKE)
   else
+    # first silent invocation with human readable error message and collected
+    # messages from sub-targets. Subsequent invocations only print directory.
     SILENT:=>/dev/null $(if $(findstring w,$(OPENWRT_VERBOSE)),,2>&1)
     export QUIET:=1
     SUBMAKE=cmd() { $(SILENT) $(MAKE) -s "$$@" < /dev/null || { echo "make $$*: build failed. Please re-run make with -j1 V=s or V=sc for a higher verbosity level to see what's going on"; false; } } 8>&1 9>&2; cmd
@@ -77,6 +85,8 @@ ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
 
   .SILENT: $(MAKECMDGOALS)
 else
+  # verbose versions
+
   SUBMAKE=$(MAKE) -w
   ##@
   # @brief Show message.
