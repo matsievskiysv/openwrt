@@ -2,9 +2,13 @@
 #
 # Copyright (C) 2006-2020 OpenWrt.org
 
+##@ @file package-dumpinfo.mk Dump package configuration for package cache preparation.
+
 ifneq ($(DUMP),)
 
-
+##@
+# @brief Dump source info.
+##
 define SOURCE_INFO
 $(if $(PKG_BUILD_DEPENDS),Build-Depends: $(PKG_BUILD_DEPENDS)
 )$(if $(HOST_BUILD_DEPENDS),Build-Depends/host: $(HOST_BUILD_DEPENDS)
@@ -13,6 +17,11 @@ $(if $(PKG_BUILD_DEPENDS),Build-Depends: $(PKG_BUILD_DEPENDS)
 
 endef
 
+##@
+# @brief Dump package info.
+#
+# @param 1: Package name
+##
 define Dumpinfo/Package
 $(info $(SOURCE_INFO)Package: $(1)
 $(if $(MENU),Menu: $(MENU)
