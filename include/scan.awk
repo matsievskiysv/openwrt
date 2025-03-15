@@ -1,3 +1,5 @@
+# Filter and sort target package list
+
 BEGIN { FS="/" }
 $1 ~ /^feeds/ { FEEDS[$NF]=$0 }
 $1 !~ /^feeds/ { PKGS[$NF]=$0 }

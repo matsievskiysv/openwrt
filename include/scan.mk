@@ -3,6 +3,10 @@
 # Copyright (C) 2007-2020 OpenWrt.org
 
 ##@ @file scan.mk top level makefile for scanning projects.
+#
+# This file calls Makefile in $(SCAN_DIR) subfolders in order to create package
+# info caches in $(TMPDIR) folder.
+##
 
 include $(TOPDIR)/include/verbose.mk
 include $(TOPDIR)/rules.mk
@@ -71,6 +75,16 @@ else
   endef
 endif
 
+##@
+# @brief Create target description file.
+#
+# Description files are placed in $(TMP_DIR)/info/ directory. For each
+# $(SCAN_TARGET) the $(TMP_DIR)/$(SCAN_TARGET) flag file is created.
+#
+# @param 1: Target name
+# @param 2: Subdirectory in $(SCAN_DIR) folder
+# @param 3: Override flag
+##
 define PackageDir
   $(TMP_DIR)/.$(SCAN_TARGET): $(TMP_DIR)/info/.$(SCAN_TARGET)-$(1)
   $(TMP_DIR)/info/.$(SCAN_TARGET)-$(1): $(SCAN_DIR)/$(2)/Makefile $(foreach DEP,$(DEPS_$(SCAN_DIR)/$(2)/Makefile) $(SCAN_DEPS),$(wildcard $(if $(filter /%,$(DEP)),$(DEP),$(SCAN_DIR)/$(2)/$(DEP))))
@@ -100,9 +114,18 @@ else
   GREP_STRING=(Build/DefaultTargets|BuildPackage|KernelPackage)
 endif
 
+##@
+# @brief Create target package list.
+#
+# Scan depth is controlled by variable $(SCAN_DEPTH). Extra find() arguments are
+# passed in $(SCAN_EXTRA).
+# Result includes Makefiles containing $(GREP_STRING).
+##
 $(FILELIST): $(OVERRIDELIST)
 	rm -f $(TMP_DIR)/info/.files-$(SCAN_TARGET)-*
 	find -L $(SCAN_DIR) -mindepth 1 $(if $(SCAN_DEPTH),-maxdepth $(SCAN_DEPTH)) $(SCAN_EXTRA) -name Makefile | xargs grep -aHE 'call $(GREP_STRING)' | sed -e 's#^$(SCAN_DIR)/##' -e 's#/Makefile:.*##' | uniq | awk -v of=$(OVERRIDELIST) -f include/scan.awk > $@
+
+#$(error $(call PackageDir,base-files,base-files,))
 
 $(TMP_DIR)/info/.files-$(SCAN_TARGET).mk: $(FILELIST)
 	( \
